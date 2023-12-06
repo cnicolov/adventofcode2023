@@ -17,16 +17,19 @@ struct Game {
 
 fn main() {
     let mut sum = 0;
+    let mut sum_min = 0;
     let content = fs::read_to_string("./input.txt")
         .expect("Failed to read file");
     content.lines().for_each(|line| {
         println!("{}", line);
         let game = line_to_game(line);
+        sum_min += sum_rolls_per_game(&game);
         if game_possible(&game) {
             sum += game.id;
         }
     });
-    println!("{}", sum);
+    println!("Part1: {}", sum);
+    println!("Part2: {}", sum_min);
 }
 
 fn game_possible(game: &Game) -> bool {
@@ -70,4 +73,32 @@ fn parse_game_id(line: &str) -> i32 {
         .collect::<Vec<&str>>()[1]
         .parse::<i32>()
         .unwrap()
+}
+
+fn sum_rolls_per_game(game: &Game) -> i32 {
+    let mut reds = Vec::new();
+    let mut greens = Vec::new();
+    let mut blues = Vec::new();
+    for roll in &game.rolls {
+        reds.push(roll.red);
+        blues.push(roll.blue);
+        greens.push(roll.green);
+    }
+    let max_red = max_number(&reds).unwrap();
+    let max_green = max_number(&greens).unwrap();
+    let max_blue = max_number(&blues).unwrap();
+
+    println!("{}", max_red * max_green * max_blue);
+    max_red * max_green * max_blue
+}
+
+fn max_number(numbers: &[i32]) -> Option<i32> {
+    let mut large = numbers.get(0)?;
+    for number in numbers {
+        if large < number {
+            large = number
+        }
+    }
+
+    Some(*large)
 }
